@@ -134,8 +134,8 @@ public class SampleOpMode extends CommandOpMode {
                 new RetractIntake(intake),
                 new PivotIntake(Intake.IntakeState.HOME, intake)));
 
-        kickerButton.whenPressed(new SetKickerPosition(false, intake))
-                .whenReleased(new SetKickerPosition(true, intake));
+//        kickerButton.whenPressed(new SetKickerPosition(false, intake))
+//                .whenReleased(new SetKickerPosition(true, intake));
 
         armButton.whenHeld(new InstantCommand(() -> arm.goToPos(Arm.ArmState.SCORE)))
                         .whenReleased(new InstantCommand(() -> arm.goToPos(Arm.ArmState.INTAKE)));
