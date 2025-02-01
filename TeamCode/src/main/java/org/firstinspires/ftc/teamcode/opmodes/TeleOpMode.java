@@ -33,6 +33,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Elevator;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeClaw;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeExt;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeRoller;
 @TeleOp
 public class TeleOpMode extends CommandOpMode {
@@ -44,6 +45,7 @@ public class TeleOpMode extends CommandOpMode {
     private Drivetrain drivetrain;
     private Claw claw;
     private IntakeClaw intakeClaw;
+    private IntakeExt intakeExt;
 
 
     @Override
@@ -56,6 +58,7 @@ public class TeleOpMode extends CommandOpMode {
         drivetrain = new Drivetrain(this.hardwareMap, new Pose2d(-58.923881554, -55.0502525317, Math.toRadians(180)), telemetry);
         claw = new Claw(hardwareMap);
         intakeClaw = new IntakeClaw(hardwareMap);
+        intakeExt = new IntakeExt(hardwareMap);
 
         GamepadButton armButton = new GamepadButton(
                 operator, GamepadKeys.Button.A
@@ -104,22 +107,24 @@ public class TeleOpMode extends CommandOpMode {
 
 
         intakeButton.whenPressed(
-                intakeClaw.extendIntakeCmd().andThen(
+                intakeExt.extendIntakeCmd().asProxy().andThen(
                         new ParallelCommandGroup(
                                 intakeClaw.pivotClawCmd(IntakeClaw.IntakePosition.COLLECT).asProxy(),
                                 intakeClaw.openClawCmd().asProxy()
                         )
                 )
-        ).whenInactive(
-                intakeClaw.closeClawCmd().andThen(
+        ).whenReleased(
+                intakeClaw.closeClawCmd().asProxy().andThen(
                 new ParallelCommandGroup(
-                        intakeClaw.rotateTo0(),
+                        intakeClaw.rotateTo0().asProxy(),
+                        intakeExt.retractIntakeCmd(),
                         intakeClaw.pivotClawCmd(IntakeClaw.IntakePosition.HOME).asProxy(),
                         intakeClaw.closeClawCmd().asProxy()
+
                 ))
         );
 
-        clawButton.whenPressed(intakeClaw.rotateTo90()).whenReleased(intakeClaw.rotateTo0());
+        rotateClawButton.whenPressed(intakeClaw.rotateTo90()).whenReleased(intakeClaw.rotateTo0());
 
         transferClawButton.whenPressed(intakeClaw.openClawCmd()).whenReleased(intakeClaw.closeClawCmd());
 
@@ -140,10 +145,14 @@ public class TeleOpMode extends CommandOpMode {
                 () -> driver.getLeftY(),
                 () -> driver.getRightX()));
 
-        register(arm);
+        register(arm, intakeClaw, intakeExt);
         schedule(new RunCommand(telemetry::update));
 
         waitForStart();
-//        schedule(new PivotIntake(Intake.IntakeState.HOME, intake), new RetractIntake(intake));
+        schedule(new InstantCommand(() -> {
+            intakeClaw.closeIntakeClaw();
+            intakeExt.extendTo(0);
+            intakeClaw.rotateClawTo(0);
+        }));
     }
 }

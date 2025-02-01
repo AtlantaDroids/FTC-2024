@@ -11,7 +11,6 @@ import java.util.function.DoubleSupplier;
 public class IntakeClaw extends SubsystemBase {
     private Servo intakeClaw;
     private Servo clawPivot;
-    private Servo intakeExt;
     private Servo intakePivot;
     private IntakePosition intakePosition;
     public enum IntakePosition {
@@ -22,27 +21,24 @@ public class IntakeClaw extends SubsystemBase {
 
 }
     public IntakeClaw(HardwareMap hMap) {
+        this.intakeClaw = hMap.get(Servo.class, "IntakeClaw");
         this.clawPivot = hMap.get(Servo.class, "ClawPivot");
-        this.intakeExt = hMap.get(Servo.class, "IntakeExt");
         this.intakePosition = IntakePosition.HOME;
         this.intakePivot = hMap.get(Servo.class, "IntakePivot");
     }
 
     public void openIntakeClaw(){
-        intakeClaw.setPosition(1);
+        intakeClaw.setPosition(0.2);
 
     }
 
     public void closeIntakeClaw(){
-        intakeClaw.setPosition(0);
+        intakeClaw.setPosition(0.3);
 
     }
 
     public void rotateClawTo(double theta){
         clawPivot.setPosition(theta);
-    }
-    public void extendTo(double position){
-        intakeExt.setPosition(position);
     }
     public void pivotTo(IntakePosition pivot){
         switch (pivot) {
@@ -68,17 +64,8 @@ public class IntakeClaw extends SubsystemBase {
         return new RunCommand(this::closeIntakeClaw, this).withTimeout(500);
     }
 
-    public Command extendIntakeCmd(){
-        return new RunCommand(() -> extendTo(1), this).withTimeout(1000);
-
-    }
-    public Command retractIntakeCmd(){
-        return new RunCommand(() -> extendTo(0), this).withTimeout(1000);
-
-    }
-
     public Command rotateClawToCmd(double theta){
-        return new RunCommand(()-> rotateClawTo(theta), this).withTimeout(500);
+        return new RunCommand(()-> rotateClawTo(theta), this).withTimeout(1000);
     }
 
     public Command rotateClawToCmd(DoubleSupplier sup){
@@ -86,11 +73,11 @@ public class IntakeClaw extends SubsystemBase {
     }
 
     public Command rotateTo90(){
-        return this.rotateClawToCmd(0.3);
+        return this.rotateClawToCmd(0.4);
     }
 
     public Command rotateTo0(){
-        return this.rotateClawToCmd(0);
+        return this.rotateClawToCmd(0.04);
     }
 
 
