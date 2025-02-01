@@ -79,9 +79,9 @@ public class SampleOpMode extends CommandOpMode {
                 operator, GamepadKeys.Button.RIGHT_BUMPER
         );
 
-        GamepadButton kickerButton = new GamepadButton(
-                driver, GamepadKeys.Button.A
-        );
+//        GamepadButton kickerButton = new GamepadButton(
+//                driver, GamepadKeys.Button.A
+//        );
         // You can compose triggers to bind multiple buttons to one action
         // if the trigger is held, move the intake based on the trigger
         Trigger extendLaterator = new Trigger(() -> driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.1);
