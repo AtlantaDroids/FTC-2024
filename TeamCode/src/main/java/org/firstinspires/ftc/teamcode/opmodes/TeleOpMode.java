@@ -5,6 +5,7 @@ import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.PerpetualCommand;
 import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
@@ -31,18 +32,19 @@ import org.firstinspires.ftc.teamcode.subsystems.Claw;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Elevator;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeClaw;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeRoller;
 @TeleOp
-public class SampleOpMode extends CommandOpMode {
+public class TeleOpMode extends CommandOpMode {
 
     private GamepadEx driver;
     private GamepadEx operator;
     private Arm arm;
-    private Intake intake;
-    private IntakeRoller intakeRoller;
     private Elevator elevator;
     private Drivetrain drivetrain;
     private Claw claw;
+    private IntakeClaw intakeClaw;
+
 
     @Override
     public void initialize() {
@@ -50,11 +52,10 @@ public class SampleOpMode extends CommandOpMode {
         operator = new GamepadEx(gamepad2);
 
         arm = new Arm(this.hardwareMap);
-        intake = new Intake(this.hardwareMap);
         elevator = new Elevator(this.hardwareMap, telemetry);
         drivetrain = new Drivetrain(this.hardwareMap, new Pose2d(-58.923881554, -55.0502525317, Math.toRadians(180)), telemetry);
-        intakeRoller = new IntakeRoller(hardwareMap);
         claw = new Claw(hardwareMap);
+        intakeClaw = new IntakeClaw(hardwareMap);
 
         GamepadButton armButton = new GamepadButton(
                 operator, GamepadKeys.Button.A
@@ -67,9 +68,20 @@ public class SampleOpMode extends CommandOpMode {
                 driver, GamepadKeys.Button.RIGHT_BUMPER
         );
 
-        GamepadButton outtakeButton = new GamepadButton(
-                driver, GamepadKeys.Button.RIGHT_BUMPER
+        GamepadButton rotateClawButton = new GamepadButton(
+                driver, GamepadKeys.Button.LEFT_BUMPER
         );
+        GamepadButton transferClawButton = new GamepadButton(
+                driver, GamepadKeys.Button.X
+        );
+
+//        GamepadButton openIntakeClaw = new GamepadButton(
+//                driver, GamepadKeys.Button.RIGHT_BUMPER
+//        );
+//        GamepadButton intakeExt = new GamepadButton(
+//                driver, GamepadKeys.Button.RIGHT_BUMPER
+//        );
+
 
         GamepadButton elevatorUpButton = new GamepadButton(
                 operator, GamepadKeys.Button.LEFT_BUMPER
@@ -84,66 +96,38 @@ public class SampleOpMode extends CommandOpMode {
 //        );
         // You can compose triggers to bind multiple buttons to one action
         // if the trigger is held, move the intake based on the trigger
-        Trigger extendLaterator = new Trigger(() -> driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.1);
-        Trigger deployIntake = new Trigger(() -> driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.1);
 
-        Trigger quickDeploy = deployIntake.and(extendLaterator.negate());
-        Trigger transfer = outtakeButton.and(extendLaterator.negate()).and(deployIntake.negate());
-        Trigger spew = outtakeButton.and(extendLaterator);
-
-        Trigger retractIntake = deployIntake.negate().and(extendLaterator.negate());
-
-        extendLaterator.whileActiveOnce(
-            new ExtendIntakeVariable(intake, () -> driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER), false)
-        );
-
-        deployIntake.whenActive(new SequentialCommandGroup(
-            new PivotIntake(Intake.IntakeState.COLLECT, intake),
-            new SetRollerState(intakeRoller, IntakeRoller.States.INTAKE)
-        )).whenInactive(new SequentialCommandGroup(
-            new PivotIntake(Intake.IntakeState.HOME, intake),
-            new SetRollerState(intakeRoller, IntakeRoller.States.STOP)
-        ));
-
-        quickDeploy.whenActive(new SequentialCommandGroup(
-            new ExtendIntakeVariable(intake, () -> 0.1).withTimeout(300),
-            new PivotIntake(Intake.IntakeState.COLLECT, intake),
-            new SetRollerState(intakeRoller, IntakeRoller.States.INTAKE)
-            )
-        );
-
-        transfer.whenActive(new SequentialCommandGroup(
-            new PivotIntake(Intake.IntakeState.STORE, intake),
-            new RunCommand(() -> {}).withTimeout(150),
-            new SetRollerState(intakeRoller, IntakeRoller.States.OUTTAKE))
-        ).whenInactive(
-            new SequentialCommandGroup(
-                new PivotIntake(Intake.IntakeState.HOME, intake),
-                new SetRollerState(intakeRoller, IntakeRoller.States.STOP))
-        );
-
-        spew.whenActive(
-            new PivotIntake(Intake.IntakeState.SPEW, intake).alongWith(new SetRollerState(intakeRoller, IntakeRoller.States.OUTTAKE))
-        ).whenInactive(
-            new PivotIntake(Intake.IntakeState.HOME, intake).alongWith(new SetRollerState(intakeRoller, IntakeRoller.States.STOP))
-        );
-
-
-        retractIntake.whenActive(new SequentialCommandGroup(
-                new SetRollerState(intakeRoller, IntakeRoller.States.STOP),
-                new RetractIntake(intake),
-                new PivotIntake(Intake.IntakeState.HOME, intake)));
 
 //        kickerButton.whenPressed(new SetKickerPosition(false, intake))
 //                .whenReleased(new SetKickerPosition(true, intake));
+
+
+
+        intakeButton.whenPressed(
+                intakeClaw.extendIntakeCmd().andThen(
+                        new ParallelCommandGroup(
+                                intakeClaw.pivotClawCmd(IntakeClaw.IntakePosition.COLLECT).asProxy(),
+                                intakeClaw.openClawCmd().asProxy()
+                        )
+                )
+        ).whenInactive(
+                intakeClaw.closeClawCmd().andThen(
+                new ParallelCommandGroup(
+                        intakeClaw.rotateTo0(),
+                        intakeClaw.pivotClawCmd(IntakeClaw.IntakePosition.HOME).asProxy(),
+                        intakeClaw.closeClawCmd().asProxy()
+                ))
+        );
+
+        clawButton.whenPressed(intakeClaw.rotateTo90()).whenReleased(intakeClaw.rotateTo0());
+
+        transferClawButton.whenPressed(intakeClaw.openClawCmd()).whenReleased(intakeClaw.closeClawCmd());
 
         armButton.whenHeld(new InstantCommand(() -> arm.goToPos(Arm.ArmState.SCORE)))
                         .whenReleased(new InstantCommand(() -> arm.goToPos(Arm.ArmState.INTAKE)));
 
         clawButton.whenPressed(new OpenClaw(claw)).whenReleased(new CloseClaw(claw));
 
-//        ScoreAtBucket.whenPressed(new ScoreAtBucket(drivetrain, arm, elevator));
-//
         elevatorUpButton.whenPressed(new ElevatorGoTo(elevator, 35));
 
         elevatorDownButton.whenPressed(new ElevatorGoTo(elevator, 0));
@@ -156,10 +140,10 @@ public class SampleOpMode extends CommandOpMode {
                 () -> driver.getLeftY(),
                 () -> driver.getRightX()));
 
-        register(arm, intake, intakeRoller);
+        register(arm);
         schedule(new RunCommand(telemetry::update));
 
         waitForStart();
-        schedule(new PivotIntake(Intake.IntakeState.HOME, intake), new RetractIntake(intake));
+//        schedule(new PivotIntake(Intake.IntakeState.HOME, intake), new RetractIntake(intake));
     }
 }
