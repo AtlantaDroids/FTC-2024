@@ -8,8 +8,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Elevator;
 import java.util.function.DoubleSupplier;
 
 public class ManualElevatorCommand extends CommandBase {
-    private Elevator elevator;
-    private DoubleSupplier joystickVal;
+    private final Elevator elevator;
+    private final DoubleSupplier joystickVal;
     private Telemetry telemetry;
 
     public ManualElevatorCommand(Elevator elevator, DoubleSupplier val, Telemetry tele) {

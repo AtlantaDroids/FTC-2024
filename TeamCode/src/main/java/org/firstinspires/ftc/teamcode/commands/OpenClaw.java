@@ -5,7 +5,7 @@ import com.arcrobotics.ftclib.command.CommandBase;
 import org.firstinspires.ftc.teamcode.subsystems.Claw;
 
 public class OpenClaw extends CommandBase {
-    private Claw claw;
+    private final Claw claw;
 
     public OpenClaw(Claw claw) {
         this.claw = claw;

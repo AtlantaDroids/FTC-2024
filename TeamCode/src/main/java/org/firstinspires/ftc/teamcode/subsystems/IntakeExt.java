@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class IntakeExt extends SubsystemBase {
-    private Servo intakeExt;
+    private final Servo intakeExt;
     public IntakeExt(HardwareMap hMap) {
         this.intakeExt = hMap.get(Servo.class, "IntakeExt");
     }

@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class IntakeRoller extends SubsystemBase {
 
-    private CRServo intakePower;
+    private final CRServo intakePower;
     private States state = States.STOP;
     public enum States {
         OUTTAKE,

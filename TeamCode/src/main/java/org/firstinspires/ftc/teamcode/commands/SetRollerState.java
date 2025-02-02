@@ -5,8 +5,8 @@ import com.arcrobotics.ftclib.command.CommandBase;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeRoller;
 
 public class SetRollerState extends CommandBase {
-    private IntakeRoller roller;
-    private IntakeRoller.States state;
+    private final IntakeRoller roller;
+    private final IntakeRoller.States state;
 
     public SetRollerState(IntakeRoller roller, IntakeRoller.States state) {
         this.roller = roller;

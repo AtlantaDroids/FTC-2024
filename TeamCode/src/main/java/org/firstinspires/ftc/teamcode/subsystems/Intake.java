@@ -6,11 +6,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class Intake extends SubsystemBase {
 
-    private Servo intakePivot;
-    private Servo intakeExt;
+    private final Servo intakePivot;
+    private final Servo intakeExt;
     private IntakeState state;
 
-    private Servo kicker;
+    private final Servo kicker;
 
     public enum IntakeState {
         HOME,

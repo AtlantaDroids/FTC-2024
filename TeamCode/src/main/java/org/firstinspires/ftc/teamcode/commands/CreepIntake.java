@@ -9,13 +9,13 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import java.util.concurrent.TimeUnit;
 
 public class CreepIntake extends CommandBase {
-    private Intake intake;
-    private double desiredPos;
-    private double speed;
+    private final Intake intake;
+    private final double desiredPos;
+    private final double speed;
     private Timing.Timer timer;
 
     private double lastPos;
-    private Telemetry telemetry;
+    private final Telemetry telemetry;
 
     public CreepIntake(Intake intake, double desiredPos, double time2Max, Telemetry telemetry){
         this.intake = intake;

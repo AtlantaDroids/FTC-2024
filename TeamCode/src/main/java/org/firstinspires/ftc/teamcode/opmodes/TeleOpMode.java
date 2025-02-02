@@ -61,21 +61,21 @@ public class TeleOpMode extends CommandOpMode {
         intakeExt = new IntakeExt(hardwareMap);
 
         GamepadButton armButton = new GamepadButton(
-                operator, GamepadKeys.Button.A
+            operator, GamepadKeys.Button.A
         );
         GamepadButton clawButton = new GamepadButton(
-                operator, GamepadKeys.Button.X
+            operator, GamepadKeys.Button.X
         );
 
         GamepadButton intakeButton = new GamepadButton(
-                driver, GamepadKeys.Button.RIGHT_BUMPER
+            driver, GamepadKeys.Button.RIGHT_BUMPER
         );
 
         GamepadButton rotateClawButton = new GamepadButton(
-                driver, GamepadKeys.Button.LEFT_BUMPER
+            driver, GamepadKeys.Button.LEFT_BUMPER
         );
         GamepadButton transferClawButton = new GamepadButton(
-                driver, GamepadKeys.Button.X
+            driver, GamepadKeys.Button.X
         );
 
 //        GamepadButton openIntakeClaw = new GamepadButton(
@@ -87,11 +87,11 @@ public class TeleOpMode extends CommandOpMode {
 
 
         GamepadButton elevatorUpButton = new GamepadButton(
-                operator, GamepadKeys.Button.LEFT_BUMPER
+            operator, GamepadKeys.Button.LEFT_BUMPER
         );
 
         GamepadButton elevatorDownButton = new GamepadButton(
-                operator, GamepadKeys.Button.RIGHT_BUMPER
+            operator, GamepadKeys.Button.RIGHT_BUMPER
         );
 
 //        GamepadButton kickerButton = new GamepadButton(
@@ -107,21 +107,18 @@ public class TeleOpMode extends CommandOpMode {
 
 
         intakeButton.whenPressed(
-                intakeExt.extendIntakeCmd().asProxy().andThen(
-                        new ParallelCommandGroup(
-                                intakeClaw.pivotClawCmd(IntakeClaw.IntakePosition.COLLECT).asProxy(),
-                                intakeClaw.openClawCmd().asProxy()
-                        )
-                )
+            new ParallelCommandGroup(
+                intakeExt.extendIntakeCmd(),
+                intakeClaw.pivotClawCmd(IntakeClaw.IntakePosition.COLLECT)
+            ).andThen(
+                intakeClaw.openClawCmd()
+            )
         ).whenReleased(
-                intakeClaw.closeClawCmd().asProxy().andThen(
-                new ParallelCommandGroup(
-                        intakeClaw.rotateTo0().asProxy(),
-                        intakeExt.retractIntakeCmd(),
-                        intakeClaw.pivotClawCmd(IntakeClaw.IntakePosition.HOME).asProxy(),
-                        intakeClaw.closeClawCmd().asProxy()
+            intakeClaw.waitFor(500, intakeClaw.closeClawCmd()).andThen(
+                intakeClaw.rotateTo0(),
+                intakeClaw.pivotClawCmd(IntakeClaw.IntakePosition.HOME).alongWith(intakeExt.retractIntakeCmd())
 
-                ))
+            )
         );
 
         rotateClawButton.whenPressed(intakeClaw.rotateTo90()).whenReleased(intakeClaw.rotateTo0());
@@ -129,7 +126,7 @@ public class TeleOpMode extends CommandOpMode {
         transferClawButton.whenPressed(intakeClaw.openClawCmd()).whenReleased(intakeClaw.closeClawCmd());
 
         armButton.whenHeld(new InstantCommand(() -> arm.goToPos(Arm.ArmState.SCORE)))
-                        .whenReleased(new InstantCommand(() -> arm.goToPos(Arm.ArmState.INTAKE)));
+            .whenReleased(new InstantCommand(() -> arm.goToPos(Arm.ArmState.INTAKE)));
 
         clawButton.whenPressed(new OpenClaw(claw)).whenReleased(new CloseClaw(claw));
 
@@ -138,12 +135,12 @@ public class TeleOpMode extends CommandOpMode {
         elevatorDownButton.whenPressed(new ElevatorGoTo(elevator, 0));
 
         CommandScheduler.getInstance().setDefaultCommand(elevator, new ManualElevatorCommand(elevator,
-                () -> (operator.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) - operator.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)), telemetry));
+            () -> (operator.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) - operator.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)), telemetry));
 
         drivetrain.setDefaultCommand(new DefaultDrive(drivetrain,
-                () -> driver.getLeftX(),
-                () -> driver.getLeftY(),
-                () -> driver.getRightX()));
+            () -> driver.getLeftX(),
+            () -> driver.getLeftY(),
+            () -> driver.getRightX()));
 
         register(arm, intakeClaw, intakeExt);
         schedule(new RunCommand(telemetry::update));

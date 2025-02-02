@@ -14,10 +14,10 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
 
 public class Drivetrain extends SubsystemBase {
-    private static int kFrontLeft = 0;
-    private static int kFrontRight = 1;
-    private static int kBackLeft = 2;
-    private static int kBackRight = 3;
+    private static final int kFrontLeft = 0;
+    private static final int kFrontRight = 1;
+    private static final int kBackLeft = 2;
+    private static final int kBackRight = 3;
 
 
 
@@ -28,9 +28,9 @@ public class Drivetrain extends SubsystemBase {
 
     private RevIMU imu;
 
-    private MecanumDrive mecanumDrive;
+    private final MecanumDrive mecanumDrive;
 
-    private Telemetry telemetry;
+    private final Telemetry telemetry;
 
 //    private static Drivetrain instance;
     public Drivetrain(HardwareMap hmap, Pose2d pose, Telemetry telemetry) {

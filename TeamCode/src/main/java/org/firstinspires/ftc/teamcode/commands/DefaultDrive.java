@@ -7,9 +7,11 @@ import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import java.util.function.DoubleSupplier;
 
 public class DefaultDrive extends CommandBase {
-    private Drivetrain drivetrain;
+    private final Drivetrain drivetrain;
 
-    private DoubleSupplier strafe, fwd, rot;
+    private final DoubleSupplier strafe;
+    private final DoubleSupplier fwd;
+    private final DoubleSupplier rot;
     public DefaultDrive(Drivetrain drivetrain, DoubleSupplier strafe, DoubleSupplier fwd, DoubleSupplier rot) {
         this.drivetrain = drivetrain;
 

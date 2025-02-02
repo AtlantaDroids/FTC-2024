@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Claw extends SubsystemBase {
-    private Servo claw;
+    private final Servo claw;
 
     public Claw(HardwareMap hmap) {
         this.claw = hmap.get(Servo.class, "claw");

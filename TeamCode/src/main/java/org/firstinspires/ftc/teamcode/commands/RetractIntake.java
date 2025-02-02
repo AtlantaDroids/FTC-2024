@@ -5,7 +5,7 @@ import com.arcrobotics.ftclib.command.CommandBase;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 
 public class RetractIntake extends CommandBase {
-    private Intake intake;
+    private final Intake intake;
     public RetractIntake(Intake intake) {
         this.intake = intake;
         addRequirements(intake);

@@ -7,8 +7,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import java.util.function.DoubleSupplier;
 
 public class ExtendIntakeVariable extends CommandBase {
-    private Intake intake;
-    private DoubleSupplier supplier;
+    private final Intake intake;
+    private final DoubleSupplier supplier;
 
 
     public ExtendIntakeVariable(Intake intake, DoubleSupplier extension) {

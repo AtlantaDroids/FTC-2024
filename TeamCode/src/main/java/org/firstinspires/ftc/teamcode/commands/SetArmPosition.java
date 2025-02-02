@@ -6,8 +6,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Arm;
 
 public class SetArmPosition extends CommandBase {
 
-    private Arm arm;
-    private Arm.ArmState armState;
+    private final Arm arm;
+    private final Arm.ArmState armState;
     public SetArmPosition(Arm arm, Arm.ArmState state) {
         this.arm = arm;
         this.armState = state;

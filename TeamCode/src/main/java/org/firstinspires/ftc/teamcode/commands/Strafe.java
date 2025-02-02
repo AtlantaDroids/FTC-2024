@@ -7,9 +7,9 @@ import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import java.util.concurrent.TimeUnit;
 
 public class Strafe extends CommandBase {
-    private Drivetrain drivetrain;
-    private Timing.Timer timer;
-    private double strafePower;
+    private final Drivetrain drivetrain;
+    private final Timing.Timer timer;
+    private final double strafePower;
     private boolean isDone = false;
 
     public Strafe(Drivetrain drivetrain, double strafePower, long dt) {

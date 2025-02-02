@@ -1,18 +1,21 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.ParallelDeadlineGroup;
 import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.command.SubsystemBase;
+import com.arcrobotics.ftclib.command.WaitCommand;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import java.util.function.DoubleSupplier;
 
 public class IntakeClaw extends SubsystemBase {
-    private Servo intakeClaw;
-    private Servo clawPivot;
-    private Servo intakePivot;
-    private IntakePosition intakePosition;
+    private final Servo intakeClaw;
+    private final Servo clawPivot;
+    private final Servo intakePivot;
+    private final IntakePosition intakePosition;
     public enum IntakePosition {
         HOME,
         COLLECT,
@@ -28,7 +31,7 @@ public class IntakeClaw extends SubsystemBase {
     }
 
     public void openIntakeClaw(){
-        intakeClaw.setPosition(0.2);
+        intakeClaw.setPosition(0);
 
     }
 
@@ -54,22 +57,26 @@ public class IntakeClaw extends SubsystemBase {
         }
     }
     public Command pivotClawCmd(IntakePosition intakePosition){
-        return new RunCommand(()-> pivotTo(intakePosition), this).withTimeout(500);
+        return new InstantCommand(()-> pivotTo(intakePosition), this);
     }
     public Command openClawCmd() {
-        return new RunCommand(this::openIntakeClaw, this).withTimeout(500);
+        return new InstantCommand(this::openIntakeClaw, this);
     }
 
     public Command closeClawCmd() {
-        return new RunCommand(this::closeIntakeClaw, this).withTimeout(500);
+        return new InstantCommand(this::closeIntakeClaw, this);
     }
 
     public Command rotateClawToCmd(double theta){
-        return new RunCommand(()-> rotateClawTo(theta), this).withTimeout(1000);
+        return new InstantCommand(()-> rotateClawTo(theta), this);
     }
 
     public Command rotateClawToCmd(DoubleSupplier sup){
-        return new RunCommand(()-> rotateClawTo(sup.getAsDouble()), this).withTimeout(500);
+        return new InstantCommand(()-> rotateClawTo(sup.getAsDouble()), this);
+    }
+
+    public Command waitFor(int millis, Command... commands) {
+        return new ParallelDeadlineGroup(new WaitCommand(millis), commands);
     }
 
     public Command rotateTo90(){

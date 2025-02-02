@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Arm extends SubsystemBase {
-    private Servo armServo;
+    private final Servo armServo;
 
     public enum ArmState {
         INTAKE,

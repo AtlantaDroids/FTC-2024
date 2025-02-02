@@ -5,8 +5,8 @@ import com.arcrobotics.ftclib.command.CommandBase;
 import org.firstinspires.ftc.teamcode.subsystems.Elevator;
 
 public class ElevatorGoTo extends CommandBase {
-    private Elevator elevator;
-    private double target;
+    private final Elevator elevator;
+    private final double target;
 
     public ElevatorGoTo(Elevator elevator, double target) {
         this.elevator = elevator;

@@ -5,7 +5,7 @@ import com.arcrobotics.ftclib.command.CommandBase;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 
 public class ExtendIntake extends CommandBase {
-    private Intake intake;
+    private final Intake intake;
 
     public ExtendIntake(Intake intake) {
         this.intake = intake;

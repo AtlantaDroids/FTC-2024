@@ -7,10 +7,10 @@ import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import java.util.concurrent.TimeUnit;
 
 public class Move extends CommandBase {
-    private Drivetrain drivetrain;
-    private Timing.Timer timer;
+    private final Drivetrain drivetrain;
+    private final Timing.Timer timer;
     private boolean isDone = false;
-    private double movePower;
+    private final double movePower;
 
     public Move(Drivetrain drivetrain,double movePower ,long dt) {
         this.drivetrain = drivetrain;

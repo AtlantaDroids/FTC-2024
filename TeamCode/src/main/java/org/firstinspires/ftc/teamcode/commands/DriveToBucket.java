@@ -9,7 +9,7 @@ import com.arcrobotics.ftclib.command.CommandBase;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 
 public class DriveToBucket extends CommandBase {
-    private Drivetrain drivetrain;
+    private final Drivetrain drivetrain;
 
     private Action action;
     private boolean isFinished = false;

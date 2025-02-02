@@ -6,8 +6,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 
 public class SetKickerPosition extends CommandBase {
 
-    private Intake intake;
-    private boolean retract;
+    private final Intake intake;
+    private final boolean retract;
 
     public SetKickerPosition(boolean retract, Intake intake) {
         this.intake = intake;

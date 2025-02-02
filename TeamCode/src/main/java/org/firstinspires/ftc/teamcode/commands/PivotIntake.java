@@ -6,8 +6,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 
 public class PivotIntake extends CommandBase {
 
-    private Intake intake; 
-    private Intake.IntakeState desiredState;
+    private final Intake intake;
+    private final Intake.IntakeState desiredState;
     
     public PivotIntake(Intake.IntakeState desired, Intake intake) {
         this.intake = intake;
