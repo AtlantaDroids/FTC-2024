@@ -31,11 +31,17 @@ public class Drivetrain extends SubsystemBase {
     private final MecanumDrive mecanumDrive;
 
     private final Telemetry telemetry;
+    private final Pose2d startPose;
 
 //    private static Drivetrain instance;
     public Drivetrain(HardwareMap hmap, Pose2d pose, Telemetry telemetry) {
+        this.startPose = pose;
         this.mecanumDrive = new MecanumDrive(hmap, pose);
         this.telemetry = telemetry;
+    }
+
+    public void reset(){
+        this.mecanumDrive.pose = startPose;
     }
 
     private double clipRange(double value) {

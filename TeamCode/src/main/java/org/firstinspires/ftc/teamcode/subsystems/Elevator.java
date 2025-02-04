@@ -11,8 +11,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Elevator extends SubsystemBase {
     private static final double TICKS_PER_MM = 0.335;
+    private static final double MAX_HEIGHT = 2100;
     private static final double KP = 0.012;
-    private static final double KF = 0.1;
+    private static final double KF = 0.15;
     private final Motor elevatorLeft;
     private Motor elevatorRight;
     private final DigitalChannel limitSwitch;
@@ -41,15 +42,14 @@ public class Elevator extends SubsystemBase {
 //        if (!limitSwitch.getState() && this.target == 0) {
 //            elevatorLeft.resetEncoder();
 //        }
-        elevatorLeft.set(this.elevatorPower + KF);
+        elevatorLeft.set(this.elevatorPower +KF);
 
         int currentPos = this.elevatorLeft.getCurrentPosition(); //Right
-        double currentPosMM = currentPos * TICKS_PER_MM;
 
-        telemetry.addData("Pos", (this.elevatorLeft.getCurrentPosition() * TICKS_PER_MM) / 25.4 );
+        telemetry.addData("Pos",this.elevatorLeft.getCurrentPosition());
         telemetry.addData("Elevator Power", this.elevatorPower);
         telemetry.addData("Elevator Target", this.target);
-        telemetry.addData("Elevator Error", this.target - currentPosMM);
+        telemetry.addData("Elevator Error", this.target - currentPos);
     }
 
     public boolean atLimitSwitch() {
@@ -66,8 +66,8 @@ public class Elevator extends SubsystemBase {
     }
 
     public void setTarget(double target) {
-        if (target > 80) { // specimen height is 31
-            this.target = 80 * 25.4;
+        if (target > MAX_HEIGHT) { // specimen height is 31
+            this.target = MAX_HEIGHT;
             return;
         }
 
@@ -77,31 +77,28 @@ public class Elevator extends SubsystemBase {
         }
 
 
-        this.target = target * 25.4;
+        this.target = target;
 
     }
 
     public void goToPos() {
         int currentPos = this.elevatorLeft.getCurrentPosition(); //Right
-        double currentPosMM = currentPos * TICKS_PER_MM;
-        double error = target - currentPosMM;
+        double error = target - currentPos;
         this.elevatorPower = error * KP;
     }
 
     public boolean atTarget() {
         int currentPos = this.elevatorLeft.getCurrentPosition(); //Right
-        double currentPosMM = currentPos * TICKS_PER_MM;
         //  target + 5 > currentPosMM && target - 5 < currentPosMM
-        return currentPosMM < target + 10 &&
-            currentPosMM > target - 10;
+        return currentPos < target + 20 &&
+            currentPos > target - 20;
 
     }
 
     public void manualControl(double pow) {
         telemetry.addData("pow", pow);
         int currentPos = this.elevatorLeft.getCurrentPosition(); //Right
-        double currentPosMM = currentPos * TICKS_PER_MM;
-        if (pow > 0 && currentPosMM > 36 * 25.4) {
+        if (pow > 0 && currentPos > MAX_HEIGHT) {
             elevatorPower = 0;
             return;
         } else if (pow < 0 && currentPos <= 15) {

@@ -17,12 +17,17 @@ public class IntakeClaw extends SubsystemBase {
     private final Servo intakePivot;
     private final IntakePosition intakePosition;
     public enum IntakePosition {
-        HOME,
-        COLLECT,
-        STORE
+        HOME(0.5),
+        COLLECT(0.2),
+        READY(0.85),
+        STORE(1);
 
+        public final double pos;
+        private IntakePosition(double pos) {
+            this.pos = pos;
+        }
 
-}
+    }
     public IntakeClaw(HardwareMap hMap) {
         this.intakeClaw = hMap.get(Servo.class, "IntakeClaw");
         this.clawPivot = hMap.get(Servo.class, "ClawPivot");
@@ -43,18 +48,9 @@ public class IntakeClaw extends SubsystemBase {
     public void rotateClawTo(double theta){
         clawPivot.setPosition(theta);
     }
+
     public void pivotTo(IntakePosition pivot){
-        switch (pivot) {
-            case HOME:
-                intakePivot.setPosition(0.5);
-                break;
-            case STORE:
-                intakePivot.setPosition(0.2);
-                break;
-            case COLLECT:
-                intakePivot.setPosition(1);
-                break;
-        }
+        intakePivot.setPosition(pivot.pos);
     }
     public Command pivotClawCmd(IntakePosition intakePosition){
         return new InstantCommand(()-> pivotTo(intakePosition), this);

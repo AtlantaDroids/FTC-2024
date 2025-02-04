@@ -9,6 +9,7 @@ import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.PerpetualCommand;
 import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
+import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.button.GamepadButton;
 import com.arcrobotics.ftclib.command.button.Trigger;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
@@ -25,6 +26,7 @@ import org.firstinspires.ftc.teamcode.commands.OpenClaw;
 import org.firstinspires.ftc.teamcode.commands.PivotIntake;
 import org.firstinspires.ftc.teamcode.commands.RetractIntake;
 import org.firstinspires.ftc.teamcode.commands.ScoreAtBucket;
+import org.firstinspires.ftc.teamcode.commands.SetArmPosition;
 import org.firstinspires.ftc.teamcode.commands.SetKickerPosition;
 import org.firstinspires.ftc.teamcode.commands.SetRollerState;
 import org.firstinspires.ftc.teamcode.subsystems.Arm;
@@ -93,6 +95,9 @@ public class TeleOpMode extends CommandOpMode {
         GamepadButton elevatorDownButton = new GamepadButton(
             operator, GamepadKeys.Button.RIGHT_BUMPER
         );
+        GamepadButton zeroButton = new GamepadButton(
+            driver, GamepadKeys.Button.Y
+        );
 
 //        GamepadButton kickerButton = new GamepadButton(
 //                driver, GamepadKeys.Button.A
@@ -103,18 +108,20 @@ public class TeleOpMode extends CommandOpMode {
 
 //        kickerButton.whenPressed(new SetKickerPosition(false, intake))
 //                .whenReleased(new SetKickerPosition(true, intake));
-
+        zeroButton.whenPressed(drivetrain::reset);
 
 
         intakeButton.whenPressed(
             new ParallelCommandGroup(
                 intakeExt.extendIntakeCmd(),
-                intakeClaw.pivotClawCmd(IntakeClaw.IntakePosition.COLLECT)
+                intakeClaw.pivotClawCmd(IntakeClaw.IntakePosition.READY)
             ).andThen(
                 intakeClaw.openClawCmd()
             )
         ).whenReleased(
-            intakeClaw.waitFor(500, intakeClaw.closeClawCmd()).andThen(
+            new SequentialCommandGroup(
+                intakeClaw.waitFor(250, intakeClaw.pivotClawCmd(IntakeClaw.IntakePosition.COLLECT)),
+                intakeClaw.waitFor(250, intakeClaw.closeClawCmd()),
                 intakeClaw.rotateTo0(),
                 intakeClaw.pivotClawCmd(IntakeClaw.IntakePosition.HOME).alongWith(intakeExt.retractIntakeCmd())
 
@@ -122,15 +129,23 @@ public class TeleOpMode extends CommandOpMode {
         );
 
         rotateClawButton.whenPressed(intakeClaw.rotateTo90()).whenReleased(intakeClaw.rotateTo0());
+        transferClawButton.whenPressed(new SequentialCommandGroup(
+            new ElevatorGoTo(elevator, 300).alongWith(new SetArmPosition(arm, Arm.ArmState.INTAKE).withTimeout(200), new OpenClaw(claw)),
+            intakeClaw.waitFor(500, intakeClaw.pivotClawCmd(IntakeClaw.IntakePosition.STORE)),
+            new ElevatorGoTo(elevator, 0),
+            new CloseClaw(claw),
+            new WaitCommand(500),
+            intakeClaw.openClawCmd(),
+            new ElevatorGoTo(elevator, 300)
+        ));
 
-        transferClawButton.whenPressed(intakeClaw.openClawCmd()).whenReleased(intakeClaw.closeClawCmd());
 
         armButton.whenHeld(new InstantCommand(() -> arm.goToPos(Arm.ArmState.SCORE)))
             .whenReleased(new InstantCommand(() -> arm.goToPos(Arm.ArmState.INTAKE)));
 
         clawButton.whenPressed(new OpenClaw(claw)).whenReleased(new CloseClaw(claw));
 
-        elevatorUpButton.whenPressed(new ElevatorGoTo(elevator, 35));
+        elevatorUpButton.whenPressed(new ElevatorGoTo(elevator, 1850));
 
         elevatorDownButton.whenPressed(new ElevatorGoTo(elevator, 0));
 
@@ -150,6 +165,7 @@ public class TeleOpMode extends CommandOpMode {
             intakeClaw.closeIntakeClaw();
             intakeExt.extendTo(0);
             intakeClaw.rotateClawTo(0);
-        }));
+            intakeClaw.pivotTo(IntakeClaw.IntakePosition.STORE);
+        }), new SetArmPosition(arm, Arm.ArmState.INTAKE).withTimeout(10));
     }
 }
