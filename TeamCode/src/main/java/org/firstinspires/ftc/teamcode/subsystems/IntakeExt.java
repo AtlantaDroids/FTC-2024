@@ -48,7 +48,7 @@ public class IntakeExt extends SubsystemBase {
         }
 
         return new RunCommand(() -> extendTo(IntakeExtensionState.DEPLOYED), this)
-            .withTimeout(500)
+            .withTimeout(300)
             .whenFinished(this::setIntakeExtended);
 
     }

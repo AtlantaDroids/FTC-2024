@@ -19,7 +19,7 @@ public class IntakeClaw extends SubsystemBase {
     public enum IntakePosition {
         HOME(0.5),
         COLLECT(0.2),
-        READY(0.85),
+        READY(0.4),
         STORE(1);
 
         public final double pos;
@@ -63,6 +63,18 @@ public class IntakeClaw extends SubsystemBase {
         return new InstantCommand(this::closeIntakeClaw, this);
     }
 
+    public Command openClawCmdBlocking() {
+        return openClawCmd().andThen(new WaitCommand(100));
+    }
+
+    public Command closeClawCmdBlocking() {
+        return closeClawCmd().andThen(new WaitCommand(100));
+    }
+
+    public Command pivotClawCmdBlocking(IntakePosition pos) {
+        return pivotClawCmd(pos).andThen(new WaitCommand(100));
+    }
+
     public Command rotateClawToCmd(double theta){
         return new InstantCommand(()-> rotateClawTo(theta), this);
     }
@@ -82,7 +94,9 @@ public class IntakeClaw extends SubsystemBase {
     public Command rotateTo0(){
         return this.rotateClawToCmd(0.04);
     }
-
+    public Command rotateToThird(){
+        return this.rotateClawToCmd(0.5);
+    }
 
 
 

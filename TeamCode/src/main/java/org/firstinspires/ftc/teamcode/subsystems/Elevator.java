@@ -12,7 +12,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class Elevator extends SubsystemBase {
     private static final double TICKS_PER_MM = 0.335;
     private static final double MAX_HEIGHT = 2100;
-    private static final double KP = 0.012;
+    private static final double KP = 0.008;
     private static final double KF = 0.15;
     private final Motor elevatorLeft;
     private Motor elevatorRight;
