@@ -20,7 +20,7 @@ public class IntakeClaw extends SubsystemBase {
         HOME(0.5),
         COLLECT(0.2),
         READY(0.4),
-        STORE(1);
+        STORE(0.98);
 
         public final double pos;
         private IntakePosition(double pos) {
@@ -41,7 +41,7 @@ public class IntakeClaw extends SubsystemBase {
     }
 
     public void closeIntakeClaw(){
-        intakeClaw.setPosition(0.3);
+        intakeClaw.setPosition(0.25);
 
     }
 
@@ -53,7 +53,7 @@ public class IntakeClaw extends SubsystemBase {
         intakePivot.setPosition(pivot.pos);
     }
     public Command pivotClawCmd(IntakePosition intakePosition){
-        return new InstantCommand(()-> pivotTo(intakePosition), this);
+        return new InstantCommand(()-> pivotTo(intakePosition));
     }
     public Command openClawCmd() {
         return new InstantCommand(this::openIntakeClaw, this);

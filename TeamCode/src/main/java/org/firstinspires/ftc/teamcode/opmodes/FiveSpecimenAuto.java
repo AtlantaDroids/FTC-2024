@@ -26,7 +26,7 @@ import org.firstinspires.ftc.teamcode.subsystems.IntakeExt;
 
 @Autonomous
 public class FiveSpecimenAuto extends CommandOpMode {
-    private static int HIGH_CHAMBER_HEIGHT = 1300;
+    private static int HIGH_CHAMBER_HEIGHT = 1350;
     private static int SCORE_HEIGHT = 900;
     private Drivetrain drivetrain;
     private Claw claw;
@@ -88,7 +88,7 @@ public class FiveSpecimenAuto extends CommandOpMode {
                 .strafeToSplineHeading(new Vector2d(44, -64), Math.toRadians(0))
                 .build();
         Action scoreFifthSample = drivetrain.getTrajectoryBuilder(new Pose2d(44, -64, Math.toRadians(0)))
-                .strafeToSplineHeading(new Vector2d(2, -29), Math.toRadians(180))
+                .strafeToSplineHeading(new Vector2d(1, -29), Math.toRadians(180))
                 .build();
 
 

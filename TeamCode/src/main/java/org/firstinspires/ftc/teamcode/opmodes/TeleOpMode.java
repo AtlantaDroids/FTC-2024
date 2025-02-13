@@ -145,7 +145,16 @@ public class TeleOpMode extends CommandOpMode {
 
         clawButton.whenPressed(new OpenClaw(claw)).whenReleased(new CloseClaw(claw));
 
-        elevatorUpButton.whenPressed(new ElevatorGoTo(elevator, 1850));
+        elevatorUpButton.whenPressed(
+                new SequentialCommandGroup(
+                        new ElevatorGoTo(elevator, 1900),
+                        new WaitCommand(500),
+                        new SetArmPosition(arm, Arm.ArmState.SCORE)
+                )
+        )
+
+
+        ;
 
         elevatorDownButton.whenPressed(new ElevatorGoTo(elevator, 0));
 
