@@ -41,9 +41,10 @@ public class IntakeClaw extends SubsystemBase {
     }
 
     public void closeIntakeClaw(){
-        intakeClaw.setPosition(0.25);
+        intakeClaw.setPosition(0.24);
 
     }
+
 
     public void rotateClawTo(double theta){
         clawPivot.setPosition(theta);
@@ -76,7 +77,7 @@ public class IntakeClaw extends SubsystemBase {
     }
 
     public Command rotateClawToCmd(double theta){
-        return new InstantCommand(()-> rotateClawTo(theta), this);
+        return new InstantCommand(()-> rotateClawTo(theta));
     }
 
     public Command rotateClawToCmd(DoubleSupplier sup){

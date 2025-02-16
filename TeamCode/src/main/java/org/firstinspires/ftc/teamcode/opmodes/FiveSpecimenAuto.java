@@ -55,15 +55,15 @@ public class FiveSpecimenAuto extends CommandOpMode {
                 .strafeToLinearHeading(new Vector2d(26,-50), Math.toRadians(330))
                 .build();
         Action goToSecondSample = drivetrain.getTrajectoryBuilder(new Pose2d(26,-50, Math.toRadians(330)))
-                .strafeToLinearHeading(new Vector2d(37, -38), Math.toRadians(30))
+                .strafeToLinearHeading(new Vector2d(37, -37), Math.toRadians(30))
                 .build();
-        Action pushSecondSample = drivetrain.getTrajectoryBuilder(new Pose2d(37, -38, Math.toRadians(30)))
+        Action pushSecondSample = drivetrain.getTrajectoryBuilder(new Pose2d(37, -37, Math.toRadians(30)))
                 .strafeToLinearHeading(new Vector2d(36.5,-50), Math.toRadians(330))
                 .build();
         Action goToThirdSample = drivetrain.getTrajectoryBuilder(new Pose2d(36.5,-50, Math.toRadians(330)))
-                .strafeToLinearHeading(new Vector2d(44.5, -24.5), Math.toRadians(0))
+                .strafeToLinearHeading(new Vector2d(44.5, -25.5), Math.toRadians(0))
                 .build();
-        Action pushThirdSample = drivetrain.getTrajectoryBuilder(new Pose2d(44.5, -24.5, Math.toRadians(0)))
+        Action pushThirdSample = drivetrain.getTrajectoryBuilder(new Pose2d(44.5, -25.5, Math.toRadians(0)))
                 .strafeToLinearHeading(new Vector2d(44.5,-65), Math.toRadians(0))
                 .build();
         Action scoreSecondSample = drivetrain.getTrajectoryBuilder(new Pose2d(44.5, -64, Math.toRadians(0)))

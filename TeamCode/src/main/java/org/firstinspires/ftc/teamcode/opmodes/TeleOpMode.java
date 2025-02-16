@@ -116,6 +116,7 @@ public class TeleOpMode extends CommandOpMode {
                 intakeExt.extendIntakeCmd(),
                 intakeClaw.pivotClawCmd(IntakeClaw.IntakePosition.READY)
             ).andThen(
+                new WaitCommand(100),
                 intakeClaw.openClawCmd()
             )
         ).whenReleased(
