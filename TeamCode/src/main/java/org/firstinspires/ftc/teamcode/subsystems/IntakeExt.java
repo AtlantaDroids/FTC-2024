@@ -22,15 +22,21 @@ public class IntakeExt extends SubsystemBase {
     }
 
     private final Servo intakeExt;
+    private final Servo intakeExtRight;
     private IntakeExtensionState currentState = IntakeExtensionState.HOME;
     public IntakeExt(HardwareMap hMap) {
+
         this.intakeExt = hMap.get(Servo.class, "IntakeExt");
+        this.intakeExtRight = hMap.get(Servo.class, "IntakeExtRight");
+
     }
     public void extendTo(double position){
+        intakeExtRight.setPosition(position);
         intakeExt.setPosition(position);
     }
 
     private void extendTo(IntakeExtensionState des) {
+        intakeExtRight.setPosition(des.pos);
         intakeExt.setPosition(des.pos);
     }
 

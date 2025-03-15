@@ -29,7 +29,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import com.pedropathing.localization.GoBildaPinpointDriver;
+import org.firstinspires.ftc.teamcode.GoBildaPinpointDriver;
 
 import java.util.Locale;
 
@@ -75,7 +75,7 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
 
-        odo = hardwareMap.get(GoBildaPinpointDriver.class,"odo");
+        odo = hardwareMap.get(GoBildaPinpointDriver.class,"Pinpoint");
 
         /*
         Set the odometry pod positions relative to the point that the odometry computer tracks around.
