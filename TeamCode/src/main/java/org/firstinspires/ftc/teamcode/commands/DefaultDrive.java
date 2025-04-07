@@ -23,8 +23,14 @@ public class DefaultDrive extends CommandBase {
     }
 
     @Override
+    public void initialize() {
+        super.initialize();
+        this.drivetrain.setTeleOpMode();
+    }
+
+    @Override
     public void execute() {
-        drivetrain.driveFieldCentric(fwd.getAsDouble(), strafe.getAsDouble(), rot.getAsDouble());
+        drivetrain.driveFieldCentric(fwd.getAsDouble(), -strafe.getAsDouble(), -rot.getAsDouble());
     }
 
     @Override

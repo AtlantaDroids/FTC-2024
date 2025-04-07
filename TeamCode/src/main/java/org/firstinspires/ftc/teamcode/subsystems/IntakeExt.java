@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.R;
 public class IntakeExt extends SubsystemBase {
     public enum IntakeExtensionState {
         HOME(0),
-        DEPLOYED(1);
+        DEPLOYED(0.95);
 
         public final double pos;
         private IntakeExtensionState(double pos) {

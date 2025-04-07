@@ -15,6 +15,7 @@ public class Elevator extends SubsystemBase {
     private static final double KP = 0.008;
     private static final double KF = 0.15;
     private final Motor elevatorLeft;
+//    private final Motor elevator;
     private Motor elevatorRight;
     private final DigitalChannel limitSwitch;
     private final Telemetry telemetry;

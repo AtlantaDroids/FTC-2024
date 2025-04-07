@@ -1,42 +1,31 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import com.acmerobotics.roadrunner.Pose2d;
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.CommandScheduler;
-import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
-import com.arcrobotics.ftclib.command.PerpetualCommand;
 import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.button.GamepadButton;
-import com.arcrobotics.ftclib.command.button.Trigger;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.commands.CloseClaw;
 import org.firstinspires.ftc.teamcode.commands.DefaultDrive;
 import org.firstinspires.ftc.teamcode.commands.ElevatorGoTo;
-import org.firstinspires.ftc.teamcode.commands.ExtendIntake;
-import org.firstinspires.ftc.teamcode.commands.ExtendIntakeVariable;
 import org.firstinspires.ftc.teamcode.commands.ManualElevatorCommand;
 import org.firstinspires.ftc.teamcode.commands.OpenClaw;
-import org.firstinspires.ftc.teamcode.commands.PivotIntake;
-import org.firstinspires.ftc.teamcode.commands.RetractIntake;
-import org.firstinspires.ftc.teamcode.commands.ScoreAtBucket;
 import org.firstinspires.ftc.teamcode.commands.SetArmPosition;
-import org.firstinspires.ftc.teamcode.commands.SetKickerPosition;
-import org.firstinspires.ftc.teamcode.commands.SetRollerState;
 import org.firstinspires.ftc.teamcode.subsystems.Arm;
 import org.firstinspires.ftc.teamcode.subsystems.Claw;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Elevator;
-import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeClaw;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeExt;
-import org.firstinspires.ftc.teamcode.subsystems.IntakeRoller;
+
 @TeleOp
 public class TeleOpMode extends CommandOpMode {
 
@@ -57,7 +46,7 @@ public class TeleOpMode extends CommandOpMode {
 
         arm = new Arm(this.hardwareMap);
         elevator = new Elevator(this.hardwareMap, telemetry);
-        drivetrain = new Drivetrain(this.hardwareMap, new Pose2d(-58.923881554, -55.0502525317, Math.toRadians(180)), telemetry);
+        drivetrain = new Drivetrain(this.hardwareMap, new Pose(0, -0, Math.toRadians(180)), telemetry);
         claw = new Claw(hardwareMap);
         intakeClaw = new IntakeClaw(hardwareMap);
         intakeExt = new IntakeExt(hardwareMap);
@@ -88,6 +77,12 @@ public class TeleOpMode extends CommandOpMode {
 //        );
 
 
+        GamepadButton clawFlipButton = new GamepadButton(
+                operator, GamepadKeys.Button.B
+        );
+        GamepadButton collectButton = new GamepadButton(
+                operator, GamepadKeys.Button.Y
+        );
         GamepadButton elevatorUpButton = new GamepadButton(
             operator, GamepadKeys.Button.LEFT_BUMPER
         );
@@ -110,6 +105,12 @@ public class TeleOpMode extends CommandOpMode {
 //                .whenReleased(new SetKickerPosition(true, intake));
         zeroButton.whenPressed(drivetrain::reset);
 
+        collectButton.whenPressed(arm.goToPosCmd(Arm.ArmState.COLLECT));
+
+        clawFlipButton.whenPressed(
+                claw.clawTo180()
+        ).whenReleased(
+                claw.clawTo0());
 
         intakeButton.whenPressed(
             new ParallelCommandGroup(
@@ -141,8 +142,19 @@ public class TeleOpMode extends CommandOpMode {
         ));
 
 
-        armButton.whenHeld(new InstantCommand(() -> arm.goToPos(Arm.ArmState.SCORE)))
-            .whenReleased(new InstantCommand(() -> arm.goToPos(Arm.ArmState.INTAKE)));
+        armButton.whenHeld(new InstantCommand(() -> arm.goToPos(Arm.ArmState.SCORE)).andThen(new SequentialCommandGroup(
+                        claw.clawTo180()),
+                        claw.closeClawCommand()
+                ))
+        .whenReleased(
+                new SequentialCommandGroup(
+                        arm.goToPosCmd(Arm.ArmState.FURTHER),
+                        new WaitCommand(1000),
+                        claw.openClawCommand(),
+                        arm.goToPosCmd(Arm.ArmState.COLLECT),
+                        claw.clawTo0()
+                )
+        );
 
         clawButton.whenPressed(new OpenClaw(claw)).whenReleased(new CloseClaw(claw));
 
@@ -172,10 +184,11 @@ public class TeleOpMode extends CommandOpMode {
 
         waitForStart();
         schedule(new InstantCommand(() -> {
+            claw.clawTo0();
             intakeClaw.closeIntakeClaw();
             intakeExt.extendTo(0);
             intakeClaw.rotateClawTo(0);
             intakeClaw.pivotTo(IntakeClaw.IntakePosition.STORE);
-        }), new SetArmPosition(arm, Arm.ArmState.INTAKE).withTimeout(10));
+        }), new SetArmPosition(arm, Arm.ArmState.COLLECT).withTimeout(10));
     }
 }

@@ -18,8 +18,8 @@ public class IntakeClaw extends SubsystemBase {
     private final IntakePosition intakePosition;
     public enum IntakePosition {
         HOME(0.5),
-        COLLECT(0.2),
-        READY(0.4),
+        COLLECT(0.205),
+        READY(0.35),
         STORE(0.98);
 
         public final double pos;
@@ -36,12 +36,12 @@ public class IntakeClaw extends SubsystemBase {
     }
 
     public void openIntakeClaw(){
-        intakeClaw.setPosition(0);
+        intakeClaw.setPosition(1);
 
     }
 
     public void closeIntakeClaw(){
-        intakeClaw.setPosition(0.24);
+        intakeClaw.setPosition(0);
 
     }
 
@@ -93,7 +93,7 @@ public class IntakeClaw extends SubsystemBase {
     }
 
     public Command rotateTo0(){
-        return this.rotateClawToCmd(0.04);
+        return this.rotateClawToCmd(0);
     }
     public Command rotateToThird(){
         return this.rotateClawToCmd(0.5);

@@ -1,16 +1,32 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
+
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Rotation2d;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.Subsystem;
 import com.arcrobotics.ftclib.command.SubsystemBase;
+import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.geometry.Vector2d;
 import com.arcrobotics.ftclib.hardware.RevIMU;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.PathBuilder;
+import com.pedropathing.pathgen.PathChain;
+import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+
+import java.util.Collections;
+import java.util.Set;
 
 
 public class Drivetrain extends SubsystemBase {
@@ -28,20 +44,21 @@ public class Drivetrain extends SubsystemBase {
 
     private RevIMU imu;
 
-    private final MecanumDrive mecanumDrive;
-
+    private final Follower follower;
     private final Telemetry telemetry;
-    private final Pose2d startPose;
+    private final Pose startPose;
 
 //    private static Drivetrain instance;
-    public Drivetrain(HardwareMap hmap, Pose2d pose, Telemetry telemetry) {
-        this.startPose = pose;
-        this.mecanumDrive = new MecanumDrive(hmap, pose);
+    public Drivetrain(HardwareMap hmap, Pose pose, Telemetry telemetry) {
+        Constants.setConstants(FConstants.class, LConstants.class);
+        follower = new Follower(hmap);
+        follower.setStartingPose(pose);
+
+        startPose = pose;
         this.telemetry = telemetry;
     }
 
     public void reset(){
-        this.mecanumDrive.pose = startPose;
     }
 
     private double clipRange(double value) {
@@ -50,8 +67,8 @@ public class Drivetrain extends SubsystemBase {
                 : value;
     }
 
-    public Pose2d getPose() {
-        return this.mecanumDrive.pose;
+    public Pose getPose() {
+        return this.follower.getPose();
     }
 
     /**
@@ -91,52 +108,74 @@ public class Drivetrain extends SubsystemBase {
 
     @Override
     public void periodic() {
-        this.mecanumDrive.updatePoseEstimate();
-        telemetry.addData("Yaw", Math.toDegrees(mecanumDrive.pose.heading.log()));
-        telemetry.addData("Drivetrain X:", this.getPose().position.x);
-        telemetry.addData("Drivetrain Y:", this.getPose().position.y);
+        this.follower.update();
+        telemetry.addData("Yaw", Math.toDegrees(follower.getPose().getHeading()));
+        telemetry.addData("Drivetrain X:", this.getPose().getX());
+        telemetry.addData("Drivetrain Y:", this.getPose().getY());
     }
 
     public void driveArcade(double forwardSpeed, double strafeSpeed, double turnSpeed) {
-        this.fieldCentricDrive(-forwardSpeed, strafeSpeed, turnSpeed, 0.0);
+        this.fieldCentricDrive(-forwardSpeed, strafeSpeed, turnSpeed);
     }
 
     public void driveFieldCentric(double forwardSpeed, double strafeSpeed, double turnSpeed) {
-        this.fieldCentricDrive(-forwardSpeed, -strafeSpeed, turnSpeed, Math.toDegrees(mecanumDrive.pose.heading.log()) + 90);
+        this.fieldCentricDrive(forwardSpeed, strafeSpeed, turnSpeed);
     }
 
-    private void fieldCentricDrive(double forwardSpeed, double strafeSpeed, double turnSpeed, double gyroAngle) {
+    private void fieldCentricDrive(double forwardSpeed, double strafeSpeed, double turnSpeed) {
 
-        strafeSpeed = clipRange(strafeSpeed);
-        forwardSpeed = clipRange(forwardSpeed);
-        turnSpeed = clipRange(turnSpeed);
-        Vector2d input = new Vector2d(strafeSpeed, forwardSpeed);
-        input = input.rotateBy(-gyroAngle);
+//        strafeSpeed = clipRange(strafeSpeed);
+//        forwardSpeed = clipRange(forwardSpeed);
+//        turnSpeed = clipRange(turnSpeed);
+//        Vector2d input = new Vector2d(strafeSpeed, forwardSpeed);
+//        input = input.rotateBy(-gyroAngle);
+//
+//        double theta = input.angle();
+//
+//        double[] wheelSpeeds = new double[4];
+//        wheelSpeeds[kFrontLeft] = Math.sin(theta + Math.PI / 4);
+//        wheelSpeeds[kFrontRight] = Math.sin(theta - Math.PI / 4);
+//        wheelSpeeds[kBackLeft] = Math.sin(theta - Math.PI / 4);
+//        wheelSpeeds[kBackRight] = Math.sin(theta + Math.PI / 4);
+//
+//        normalize(wheelSpeeds, input.magnitude());
+//
+//        wheelSpeeds[kFrontLeft] += turnSpeed;
+//        wheelSpeeds[kFrontRight] -= turnSpeed;
+//        wheelSpeeds[kBackLeft] += turnSpeed;
+//        wheelSpeeds[kBackRight] -= turnSpeed;
 
-        double theta = input.angle();
+//        normalize(wheelSpeeds);
 
-        double[] wheelSpeeds = new double[4];
-        wheelSpeeds[kFrontLeft] = Math.sin(theta + Math.PI / 4);
-        wheelSpeeds[kFrontRight] = Math.sin(theta - Math.PI / 4);
-        wheelSpeeds[kBackLeft] = Math.sin(theta - Math.PI / 4);
-        wheelSpeeds[kBackRight] = Math.sin(theta + Math.PI / 4);
+        this.follower.setTeleOpMovementVectors(forwardSpeed, strafeSpeed, turnSpeed, false);
 
-        normalize(wheelSpeeds, input.magnitude());
-
-        wheelSpeeds[kFrontLeft] += turnSpeed;
-        wheelSpeeds[kFrontRight] -= turnSpeed;
-        wheelSpeeds[kBackLeft] += turnSpeed;
-        wheelSpeeds[kBackRight] -= turnSpeed;
-
-        normalize(wheelSpeeds);
-
-        this.mecanumDrive.leftFront.setPower(wheelSpeeds[kFrontLeft]);
-        this.mecanumDrive.rightFront.setPower(wheelSpeeds[kFrontRight]);
-        this.mecanumDrive.leftBack.setPower(wheelSpeeds[kBackLeft]);
-        this.mecanumDrive.rightBack.setPower(wheelSpeeds[kBackRight]);
     }
 
-    public TrajectoryActionBuilder getTrajectoryBuilder(Pose2d initalPose) {
-        return this.mecanumDrive.actionBuilder(initalPose);
+    public void setTeleOpMode(){
+        this.follower.startTeleopDrive();
+    }
+
+    public PathBuilder getTrajectoryBuilder(Pose2d initalPose) {
+        return this.follower.pathBuilder();
+    }
+
+    public void followPath(PathChain pathChain, boolean hold) {
+        this.follower.followPath(pathChain, hold);
+    }
+
+    public void turnTo(double angle) {
+        this.follower.turnTo(angle);
+    }
+
+    public void update() {
+        this.follower.update();
+    }
+
+    public boolean isBusy() {
+        return this.follower.isBusy();
+    }
+
+    public void resetFollower() {
+        this.follower.setPose(startPose);
     }
 }
