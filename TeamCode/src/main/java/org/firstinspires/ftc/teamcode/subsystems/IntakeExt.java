@@ -13,7 +13,11 @@ import org.firstinspires.ftc.teamcode.R;
 public class IntakeExt extends SubsystemBase {
     public enum IntakeExtensionState {
         HOME(0),
-        DEPLOYED(0.95);
+        //fix later
+        DEPLOYED(0.29),
+
+        MOVE(0.1)
+        ;
 
         public final double pos;
         private IntakeExtensionState(double pos) {
@@ -38,6 +42,11 @@ public class IntakeExt extends SubsystemBase {
     private void extendTo(IntakeExtensionState des) {
         intakeExtRight.setPosition(des.pos);
         intakeExt.setPosition(des.pos);
+    }
+
+
+    private void setIntakeHalfExtended() {
+        this.currentState = IntakeExtensionState.MOVE;
     }
 
     private void setIntakeExtended() {

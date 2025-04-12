@@ -18,9 +18,10 @@ public class IntakeClaw extends SubsystemBase {
     private final IntakePosition intakePosition;
     public enum IntakePosition {
         HOME(0.5),
-        COLLECT(0.205),
+        COLLECT(0.193),
         READY(0.35),
-        STORE(0.98);
+        STORE(0.98),
+        MOVE(0.3);
 
         public final double pos;
         private IntakePosition(double pos) {

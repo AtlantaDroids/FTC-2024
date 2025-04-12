@@ -33,6 +33,9 @@ public class Intake extends SubsystemBase {
 
         intakeExt.setPosition(1);
 
+
+
+
     }
     public void retract() {
 

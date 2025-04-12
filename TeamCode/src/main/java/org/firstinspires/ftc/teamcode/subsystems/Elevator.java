@@ -11,12 +11,12 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Elevator extends SubsystemBase {
     private static final double TICKS_PER_MM = 0.335;
-    private static final double MAX_HEIGHT = 2100;
+    private static final double MAX_HEIGHT = 2700;
     private static final double KP = 0.008;
-    private static final double KF = 0.15;
+    private static final double KF = 0;
     private final Motor elevatorLeft;
 //    private final Motor elevator;
-    private Motor elevatorRight;
+    private final Motor elevatorRight;
     private final DigitalChannel limitSwitch;
     private final Telemetry telemetry;
 
@@ -25,11 +25,12 @@ public class Elevator extends SubsystemBase {
     public Elevator(HardwareMap hMap, Telemetry telemetry){
         this.elevatorLeft = new Motor(hMap, "ElevatorLeft");
         this.limitSwitch = hMap.get(DigitalChannel.class, "limitSwitch");
-        //this.elevatorRight = new Motor(hMap, "ElevatorRight");
+        this.elevatorRight = new Motor(hMap, "ElevatorRight");
+//        this.elevatorRight.setInverted(true);
 
         this.telemetry = telemetry;
         this.elevatorLeft.setInverted(false);
-        this.elevatorLeft.encoder.setDirection(Motor.Direction.FORWARD);
+        this.elevatorLeft.encoder.setDirection(Motor.Direction.REVERSE);
 
         // Zero encoder when at the limit switch
         new Trigger(this::atLimitSwitch).whenActive(this::stopAndReset);
@@ -39,7 +40,7 @@ public class Elevator extends SubsystemBase {
     @Override
     public void periodic() {
 
-        //elevatorRight.set(this.elevatorPower + KF);
+        elevatorRight.set(this.elevatorPower + KF);
 //        if (!limitSwitch.getState() && this.target == 0) {
 //            elevatorLeft.resetEncoder();
 //        }

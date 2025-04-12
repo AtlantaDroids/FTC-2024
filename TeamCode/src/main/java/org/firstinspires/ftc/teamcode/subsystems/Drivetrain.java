@@ -14,10 +14,12 @@ import com.arcrobotics.ftclib.geometry.Vector2d;
 import com.arcrobotics.ftclib.hardware.RevIMU;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.GoBildaPinpointDriver;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.PathBuilder;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.util.Constants;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -37,10 +39,10 @@ public class Drivetrain extends SubsystemBase {
 
 
 
-    private Motor frontLeft;
-    private Motor backLeft;
-    private Motor frontRight;
-    private Motor backRight;
+    private DcMotor frontLeft;
+    private DcMotor backLeft;
+    private DcMotor frontRight;
+    private DcMotor backRight;
 
     private RevIMU imu;
 
@@ -53,9 +55,24 @@ public class Drivetrain extends SubsystemBase {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hmap);
         follower.setStartingPose(pose);
+        frontLeft = hmap.get(DcMotor.class, "frontLeft");
+        backLeft = hmap.get(DcMotor.class, "backLeft");
+        frontRight = hmap.get(DcMotor.class, "frontRight");
+        backRight = hmap.get(DcMotor.class, "backRight");
+
 
         startPose = pose;
         this.telemetry = telemetry;
+    }
+
+    public void setBrakeMode(){
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
+
     }
 
     public void reset(){
