@@ -29,11 +29,11 @@ public class Claw extends SubsystemBase {
     }
 
     public void openClaw() {
-        this.claw.setPosition(0.97);
+        this.claw.setPosition(0.4);
     }
 
     public void closeClaw() {
-        this.claw.setPosition(0);
+        this.claw.setPosition(0.10);
     }
 
     
@@ -43,7 +43,7 @@ public class Claw extends SubsystemBase {
 
 
     public Command closeClawCommand() {
-        return new RunCommand(this::closeClaw, this).withTimeout(100);
+        return new RunCommand(this::closeClaw, this).withTimeout(200);
     }
 
     public Command openClawCommand() {

@@ -20,7 +20,7 @@ public class IntakeClaw extends SubsystemBase {
         HOME(0.5),
         COLLECT(0.193),
         READY(0.35),
-        STORE(0.98),
+        STORE(0.8),
         MOVE(0.3);
 
         public final double pos;

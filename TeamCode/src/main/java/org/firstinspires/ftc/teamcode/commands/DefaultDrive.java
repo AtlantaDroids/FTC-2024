@@ -30,7 +30,10 @@ public class DefaultDrive extends CommandBase {
 
     @Override
     public void execute() {
-        drivetrain.driveFieldCentric(fwd.getAsDouble(), -strafe.getAsDouble(), -rot.getAsDouble());
+        double forward = Math.pow(fwd.getAsDouble(), 2) * Math.signum(fwd.getAsDouble());
+        double translation = Math.pow(strafe.getAsDouble(), 2)*Math.signum(strafe.getAsDouble());
+        double turn = Math.pow(rot.getAsDouble(),2)*Math.signum(rot.getAsDouble());
+        drivetrain.driveFieldCentric(forward, -translation, -turn);
     }
 
     @Override

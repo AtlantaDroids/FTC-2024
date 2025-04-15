@@ -78,9 +78,9 @@ public class TeleOpMode extends CommandOpMode {
         GamepadButton rotateClawButton = new GamepadButton(
             driver, GamepadKeys.Button.LEFT_BUMPER
         );
-//        GamepadButton transferClawButton = new GamepadButton(
-//            driver, GamepadKeys.Button.X
-//        ); add back later
+        GamepadButton transferClawButton = new GamepadButton(
+            driver, GamepadKeys.Button.X
+        );
 
 //        GamepadButton openIntakeClaw = new GamepadButton(
 //                driver, GamepadKeys.Button.RIGHT_BUMPER
@@ -103,9 +103,16 @@ public class TeleOpMode extends CommandOpMode {
         GamepadButton elevatorDownButton = new GamepadButton(
             operator, GamepadKeys.Button.RIGHT_BUMPER
         );
-        GamepadButton zeroButton = new GamepadButton(
-            driver, GamepadKeys.Button.Y
+        GamepadButton armRestButton = new GamepadButton(
+                operator, GamepadKeys.Button.B
         );
+//        GamepadButton zeroButton = new GamepadButton(
+//            driver, GamepadKeys.Button.Y
+//        );
+        GamepadButton intakeDownButton = new GamepadButton(
+              driver  , GamepadKeys.Button.Y
+        );
+
 
 //        GamepadButton kickerButton = new GamepadButton(
 //                driver, GamepadKeys.Button.A
@@ -118,7 +125,7 @@ public class TeleOpMode extends CommandOpMode {
 //                .whenReleased(new SetKickerPosition(true, intake));
 
 
-        zeroButton.whenPressed(drivetrain::reset);
+//        zeroButton.whenPressed(drivetrain::reset);
 
 //        collectButton.whenPressed(arm.goToPosCmd(Arm.ArmState.COLLECT));
 
@@ -130,7 +137,7 @@ public class TeleOpMode extends CommandOpMode {
         intakeButton.whenPressed(
             new ParallelCommandGroup(
                 intakeExt.extendIntakeCmd(),
-                intakeClaw.pivotClawCmd(IntakeClaw.IntakePosition.READY)
+                new WaitCommand(300).andThen(intakeClaw.pivotClawCmd(IntakeClaw.IntakePosition.READY))
             ).andThen(
                 new WaitCommand(100),
                 intakeClaw.openClawCmd()
@@ -144,9 +151,19 @@ public class TeleOpMode extends CommandOpMode {
 
             )
         );
+        intakeDownButton.whenPressed(intakeClaw.pivotClawCmdBlocking(IntakeClaw.IntakePosition.STORE));
 
         rotateClawButton.whenPressed(intakeClaw.rotateTo90()).whenReleased(intakeClaw.rotateTo0());
-//        transferClawButton.whenPressed(new SequentialCommandGroup(
+        transferClawButton.whenPressed(new SequentialCommandGroup(
+                intakeClaw.waitFor(500, intakeClaw.pivotClawCmd(IntakeClaw.IntakePosition.STORE)),
+                arm.elbowGoToPosCmd(Arm.ArmState.TRANSITION),
+                arm.goToPosCmd(Arm.ArmState.TRANSITION),
+                claw.closeClawCommand(),
+                new WaitCommand(200),
+                intakeClaw.openClawCmd()
+
+
+
 //            new ElevatorGoTo(elevator, 300).alongWith(new SetArmPosition(arm, Arm.ArmState.COLLECT).withTimeout(200), new OpenClaw(claw)),
 //            intakeClaw.waitFor(500, intakeClaw.pivotClawCmd(IntakeClaw.IntakePosition.STORE)),
 //            new ElevatorGoTo(elevator, 0),
@@ -154,18 +171,28 @@ public class TeleOpMode extends CommandOpMode {
 //            new WaitCommand(500),
 //            intakeClaw.openClawCmd(),
 //            new ElevatorGoTo(elevator, 300)
-//        ));
+        ));
 
 
 
-        goToScoreButton.whenPressed(arm.goToPosCmd(Arm.ArmState.SCORE).andThen(
-                                new ParallelCommandGroup(
-                                        claw.closeClawCommand(),
-                                        arm.elbowGoToPosCmd(Arm.ArmState.SCORE),
-                                        intakeClaw.pivotClawCmdBlocking(IntakeClaw.IntakePosition.MOVE)
+
+        goToScoreButton.whenPressed(arm.elbowGoToPosCmd(Arm.ArmState.WAIT).andThen(
+                                        new ParallelCommandGroup(
+                                                arm.goToPosCmd(Arm.ArmState.WAIT),
+                                                claw.closeClawCommand(),
+                                                arm.elbowGoToPosCmd(Arm.ArmState.SCORE).andThen(arm.goToPosCmd(Arm.ArmState.SCORE)),
+                                                intakeClaw.pivotClawCmdBlocking(IntakeClaw.IntakePosition.STORE),
+                                                new ElevatorGoTo(elevator,Elevator.PREPARE)
+                                                )
+
+
                                 )
 
-                ));
+                ).whenReleased(new SequentialCommandGroup(
+
+                        new ElevatorGoTo(elevator, Elevator.SCORE).withTimeout(1000)
+//                        claw.openClawCommand()
+        ));
 //  .whenReleased(new InstantCommand(()-> arm.goToPos(Arm.ArmState.COLLECT)))
 
 
@@ -184,26 +211,41 @@ public class TeleOpMode extends CommandOpMode {
 //        );
         pickUpButton.whenPressed(new SequentialCommandGroup(
                 new ParallelCommandGroup(
-                 claw.closeClawCommand(),
-                 new SetArmPosition(arm, Arm.ArmState.COLLECT))
+                        arm.goToPosCmd(Arm.ArmState.COLLECT).andThen(
+                                arm.elbowGoToPosCmd(Arm.ArmState.COLLECT)
+                                ),
+                        claw.closeClawCommand(),
+                        intakeExt.retractIntakeCmd(),
+                        intakeClaw.pivotClawCmdBlocking(IntakeClaw.IntakePosition.STORE),
+                        new ElevatorGoTo(elevator, Elevator.DOWN).withTimeout(2000)
+                )
 
-        ));
+                )
+
+        );
+        armRestButton.whenPressed(
+                new SequentialCommandGroup(
+                arm.elbowGoToPosCmd(Arm.ArmState.WAIT),
+                arm.goToPosCmd(Arm.ArmState.WAIT)
+                )
+
+);
 
         clawButton.whenPressed(new OpenClaw(claw))
-                .whenReleased(new CloseClaw(claw))
+                .whenReleased(new CloseClaw(claw));
 
-//        elevatorUpButton.whenHeld(
-//                new SequentialCommandGroup(
-////                        new ElevatorGoTo(elevator, 1900),
-////                        new WaitCommand(500),
-////                        new SetArmPosition(arm, Arm.ArmState.SCORE)
-//                )
-//        )
+        elevatorUpButton.whenHeld(
+                new SequentialCommandGroup(
+                        new ElevatorGoTo(elevator, 2750).withTimeout(2000),
+                        new WaitCommand(500),
+                        new SetArmPosition(arm, Arm.ArmState.SCORE)
+                )
+        )
 
 
                ;
 
-        elevatorDownButton.whenPressed(new ElevatorGoTo(elevator, 0));
+        elevatorDownButton.whenHeld(new ElevatorGoTo(elevator, 0));
 
         CommandScheduler.getInstance().setDefaultCommand(elevator, new ManualElevatorCommand(elevator,
             () -> (operator.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) - operator.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)), telemetry));
@@ -224,7 +266,8 @@ public class TeleOpMode extends CommandOpMode {
             intakeClaw.rotateClawTo(0);
             intakeClaw.pivotTo(IntakeClaw.IntakePosition.HOME);
             drivetrain.setBrakeMode();
-
-        }), new SetArmPosition(arm, Arm.ArmState.COLLECT).withTimeout(10));
+            arm.elbowGoToPos(Arm.ArmState.SCORE);
+            arm.goToPos(Arm.ArmState.SCORE);
+       }));
     }
 }

@@ -17,6 +17,7 @@ public class Arm extends SubsystemBase {
         TRANSITION,
         SCORE,
         COLLECT,
+        WAIT
 //        FURTHER
     }
 
@@ -31,33 +32,39 @@ public class Arm extends SubsystemBase {
     public void goToPos(ArmState state) {
         switch(state) {
             case SCORE:
-                this.armServoLeft.setPosition(0.37);
-                this.armServoRight.setPosition(0.37);
-                this.elbow.setPosition(0.7);
+                this.armServoLeft.setPosition(0.39);
+                this.armServoRight.setPosition(0.39);
+//                this.elbow.setPosition(0.78);
                 break;
             case TRANSITION:
+                this.armServoLeft.setPosition(0.46);
+                this.armServoRight.setPosition(0.46);
+//                this.elbow.setPosition(0.05);
+                break;
+            case COLLECT:
+                this.armServoLeft.setPosition(0.17);
+                this.armServoRight.setPosition(0.17);
+//                this.elbow.setPosition(0.48);
+                break;
+
+            case WAIT:
                 this.armServoLeft.setPosition(0.38);
                 this.armServoRight.setPosition(0.38);
-                this.elbow.setPosition(0.05);
-                break;
-            case COLLECT:
-                this.armServoLeft.setPosition(0.14);
-                this.armServoRight.setPosition(0.14);
-                this.elbow.setPosition(0.48);
-                break;
-        }
+                break;        }
     }
-    public void clawGoToPos(ArmState state) {
+    public void elbowGoToPos(ArmState state) {
         switch(state) {
             case SCORE:
-                this.elbow.setPosition(0.77);
+                this.elbow.setPosition(0.75);
                 break;
             case TRANSITION:
-                this.elbow.setPosition(0.05);
+                this.elbow.setPosition(0.11);
                 break;
             case COLLECT:
-                this.elbow.setPosition(0.48);
+                this.elbow.setPosition(0.44);
                 break;
+            case WAIT:
+                this.elbow.setPosition(0.65);
         }
     }
 
@@ -65,7 +72,7 @@ public class Arm extends SubsystemBase {
         return new RunCommand(() -> goToPos(state)).raceWith(new WaitCommand(500));
     }
     public Command elbowGoToPosCmd(ArmState state) {
-        return new RunCommand(() -> goToPos(state)).raceWith(new WaitCommand(500));
+        return new RunCommand(() -> elbowGoToPos(state)).raceWith(new WaitCommand(500));
     }
 
 }

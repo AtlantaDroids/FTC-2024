@@ -11,9 +11,14 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Elevator extends SubsystemBase {
     private static final double TICKS_PER_MM = 0.335;
-    private static final double MAX_HEIGHT = 2700;
-    private static final double KP = 0.008;
-    private static final double KF = 0;
+    private static final double MAX_HEIGHT = 2750;
+    private static final double KP = 0.005;
+    private static final double KF = 0.08;
+    public static  final double PREPARE = 750;
+    public static  final double SCORE = 1440;
+    public static  final double DOWN = 0;
+
+
     private final Motor elevatorLeft;
 //    private final Motor elevator;
     private final Motor elevatorRight;
@@ -92,8 +97,8 @@ public class Elevator extends SubsystemBase {
     public boolean atTarget() {
         int currentPos = this.elevatorLeft.getCurrentPosition(); //Right
         //  target + 5 > currentPosMM && target - 5 < currentPosMM
-        return currentPos < target + 20 &&
-            currentPos > target - 20;
+        return currentPos <= target + 25 &&
+            currentPos >= target - 15;
 
     }
 
